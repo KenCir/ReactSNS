@@ -1,21 +1,43 @@
-import { getCsrfToken } from "next-auth/react"
+import { signIn, getCsrfToken, getProviders } from 'next-auth/react'
+import styles from '../../styles/Signin.module.css'
 
-export default function SignIn({ csrfToken }) {
+const Signin = ({ csrfToken, providers }) => {
     return (
-        <form method="post" action="/api/auth/signin/email">
-            <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
-            <label>
-                Email address
-                <input type="email" id="email" name="email" />
-            </label>
-            <button type="submit">Sign in with Email</button>
-        </form>
+        <div style={{ overflow: 'hidden', position: 'relative' }}>
+            <div className={styles.wrapper} />
+            <div className={styles.content}>
+                <div className={styles.cardWrapper}>
+                    <div className={styles.cardContent}>
+                        <input name='csrfToken' type='hidden' defaultValue={csrfToken} />
+                        <input placeholder='Email (Not Setup - Please Use Github)' size='large' />
+                        <button className={styles.primaryBtn}>
+                            Submit
+                        </button>
+                        <hr />
+                        {providers &&
+                            Object.values(providers).map(provider => (
+                                <div key={provider.name} style={{ marginBottom: 0 }}>
+                                    <button onClick={() => signIn(provider.id)} >
+                                        Sign in with{' '} {provider.name}
+                                    </button>
+                                </div>
+                            ))}
+                    </div>
+                </div>
+            </div>
+        </div>
     )
 }
 
+export default Signin
+
 export async function getServerSideProps(context) {
+    const providers = await getProviders()
     const csrfToken = await getCsrfToken(context)
     return {
-        props: { csrfToken },
+        props: {
+            providers,
+            csrfToken
+        },
     }
 }

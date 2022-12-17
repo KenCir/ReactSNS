@@ -1,28 +1,23 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
-import Providers from 'next-auth/providers/credentials';
-
-// credentials の情報から、ログイン可能か判定してユーザー情報を返す関数
-const findUserByCredentials = credentials => {
-    // 今回は簡易的な例なのでメールアドレスとパスワードが一致する場合にユーザー情報を返却する。
-    // データベースでユーザーを管理している場合は、データベースからユーザーを取得して、パスワードハッシュを比較して判定するのがよいかと。
-    if (
-        credentials.email === process.env.USER_EMAIL &&
-        credentials.password === process.env.USER_PASSWORD
-    ) {
-        // ログイン可ならユーザー情報を返却
-        return { id: 1, name: "Taro" }
-    } else {
-        // ログイン不可の場合は null を返却
-        return null
-    }
-}
+import CredentialsProvider from "next-auth/providers/credentials";
+import SequelizeAdapter from "@next-auth/sequelize-adapter";
+import { Sequelize } from "sequelize"
+const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USERNAME, process.env.MYSQL_PASSWORD, {
+    host: process.env.MYSQL_HOST,
+    port: process.env.MYSQL_PORT,
+    dialect: 'mysql',
+});
 
 export default NextAuth({
-    // 認証プロバイダー
+    debug: true,
+    session: {
+        strategy: 'database',
+    },
+    adapter: SequelizeAdapter(sequelize),
     providers: [
-        Providers({
+        CredentialsProvider({
             // 表示名 ('Sign in with ...' に表示される)
             name: "Email",
             // credentials は、ログインページで適切なフォームを生成するために使用されます。
@@ -47,12 +42,12 @@ export default NextAuth({
                 }
             },
         }),
+        GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET
+        })
     ],
     pages: {
-        signIn: '/auth/signin',
-        signOut: '/auth/signout',
-        error: '/auth/error', // Error code passed in query string as ?error=
-        verifyRequest: '/auth/verify-request', // (used for check email message)
-        newUser: '/auth/new-user' // New users will be directed here on first sign in (leave the property out if not of interest)
+        signIn: '/auth/signin'
     }
 });
