@@ -13,7 +13,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Copyright from '../../components/Copyright';
+import Copyright from '../components/Copyright';
 
 const theme = createTheme();
 
@@ -21,7 +21,6 @@ export default function Component() {
   const { data: session, status } = useSession();
 
   if (status === 'authenticated') {
-  } else {
     return (
       <ThemeProvider theme={theme}>
         <Container component="main" maxWidth="xs">
@@ -38,59 +37,32 @@ export default function Component() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              ログイン
+              ログイン済み
+              <br />
+              Signed in as {session.user.name}
+              <button onClick={signOut}>Sign out</button>
             </Typography>
-            <Box component="form" noValidate sx={{ mt: 1 }}>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="メールアドレス"
-                name="email"
-                autoComplete="email"
-                autoFocus
-                type="email"
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="パスワード"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-              />
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="次回から自動でログイン"
-              />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
-                Sign In
-              </Button>
-              <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    パスワードをお忘れですか？
-                  </Link>
-                </Grid>
-                <Grid item>
-                  <Link href="register" variant="body2">
-                    {"アカウントをお持ちでない場合は、アカウントを作成します"}
-                  </Link>
-                </Grid>
-              </Grid>
-            </Box>
           </Box>
           <Copyright sx={{ mt: 8, mb: 4 }} />
         </Container>
-      </ThemeProvider>
+      </ThemeProvider >
+    )
+  } else {
+    return (
+      <div>
+        {session && (
+          <>
+            Signed in as {session.user.name} <br />
+            <button onClick={signOut}>Sign out</button>
+          </>
+        )}
+        {!session && (
+          <>
+            Not signed in <br />
+            <button onClick={signIn}>Sign in</button>
+          </>
+        )}
+      </div>
     );
   }
 }

@@ -14,39 +14,42 @@ export default NextAuth({
     debug: true,
     session: {
         strategy: 'database',
+        maxAge: 30 * 24 * 60 * 60,
+        updateAge: 24 * 60 * 60,
     },
     adapter: SequelizeAdapter(sequelize),
     providers: [
-        CredentialsProvider({
-            // 表示名 ('Sign in with ...' に表示される)
-            name: "Email",
-            // credentials は、ログインページで適切なフォームを生成するために使用されます。
-            // 送信するフィールドを指定できます。（今回は メールアドレス と パスワード）
-            credentials: {
-                email: { label: "Email", type: "email", placeholder: "email@example.com" },
-                password: { label: "Password", type: "password" },
+        EmailProvider({
+            server: {
+                host: process.env.SMTP_HOST,
+                port: process.env.SMTP_PORT,
+                secure: false,
             },
-            // 認証の関数
-            authorize: async credentials => {
-                const user = findUserByCredentials(credentials)
-                if (user) {
-                    // 返されたオブジェクトはすべてJWTの`user`プロパティに保存される
-                    return Promise.resolve(user)
-                } else {
-                    // nullまたはfalseを返すと、認証を拒否する
-                    return Promise.resolve(null)
-
-                    // ErrorオブジェクトやリダイレクトURLを指定してコールバックをリジェクトすることもできます。
-                    // return Promise.reject(new Error('error message')) // エラーページにリダイレクト
-                    // return Promise.reject('/path/to/redirect')        // URL にリダイレクト
-                }
-            },
+            from: process.env.SMTP_FROM,
         }),
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET
         })
     ],
+    callbacks: {
+        async signIn({ user, account, profile, email, credentials }) {
+            console.log('signin');
+            return true
+        },
+        async redirect({ url, baseUrl }) {
+            console.log('redirect');
+            return baseUrl
+        },
+        async session({ session, user, token }) {
+            console.log('session');
+            return session
+        },
+        async jwt({ token, user, account, profile, isNewUser }) {
+            console.log('jwt');
+            return token
+        }
+    },
     pages: {
         signIn: '/auth/signin'
     }

@@ -1,110 +1,126 @@
-// Account Register
+import Head from 'next/head'
+import Layout from '../layout/layout'
+import Link from 'next/link'
+import styles from '../styles/Form.module.css';
+import Image from 'next/image'
+import { HiAtSymbol, HiFingerPrint, HiOutlineUser } from "react-icons/hi";
+import { useState } from 'react';
+import { useFormik } from 'formik';
+import { registerValidate } from '../utils/validate'
+import { useRouter } from 'next/router';
 
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Copyright from '../components/Copyright';
+export default function Register() {
 
-const theme = createTheme();
+    const [show, setShow] = useState({ password: false, cpassword: false })
+    const router = useRouter()
+    const formik = useFormik({
+        initialValues: {
+            username: '',
+            email: '',
+            password: '',
+            cpassword: ''
+        },
+        validate: registerValidate,
+        onSubmit
+    })
 
-export default function SignUp() {
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
-    };
+    async function onSubmit(values) {
+        const options = {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(values)
+        }
+
+        await fetch('http://localhost:3000/api/auth/signup', options)
+            .then(res => res.json())
+            .then((data) => {
+                if (data) router.push('http://localhost:3000')
+            })
+    }
 
     return (
-        <ThemeProvider theme={theme}>
-            <Container component="main" maxWidth="xs">
-                <CssBaseline />
-                <Box
-                    sx={{
-                        marginTop: 8,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                    }}
-                >
-                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                        <LockOutlinedIcon />
-                    </Avatar>
-                    <Typography component="h1" variant="h5">
-                        アカウント作成
-                    </Typography>
-                    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={12}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    id="name"
-                                    label="ニックネーム"
-                                    name="name"
-                                    autoComplete="family-name"
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    id="email"
-                                    label="メールアドレス"
-                                    name="email"
-                                    autoComplete="email"
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    name="password"
-                                    label="パスワード"
-                                    type="password"
-                                    id="password"
-                                    autoComplete="new-password"
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <FormControlLabel
-                                    control={<Checkbox value="terms of service" color="primary" />}
-                                    label="利用規約に同意します"
-                                />
-                            </Grid>
-                        </Grid>
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            sx={{ mt: 3, mb: 2 }}
-                        >
-                            アカウントを作成
-                        </Button>
-                        <Grid container justifyContent="center">
-                            <Grid item>
-                                <Link href="/login" variant="body2">
-                                    すでにアカウントをお持ちですか？ ログインします
-                                </Link>
-                            </Grid>
-                        </Grid>
-                    </Box>
-                </Box>
-                <Copyright sx={{ mt: 5 }} />
-            </Container>
-        </ThemeProvider>
-    );
+        <Layout>
+            <Head>
+                <title>Register</title>
+            </Head>
+
+            <section className='w-3/4 mx-auto flex flex-col gap-10'>
+                <div className="title">
+                    <h1 className='text-gray-800 text-4xl font-bold py-4'>Register</h1>
+                    <p className='w-3/4 mx-auto text-gray-400'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores, officia?</p>
+                </div>
+
+                {/* form */}
+                <form className='flex flex-col gap-5' onSubmit={formik.handleSubmit}>
+                    <div className={`${styles.input_group} ${formik.errors.username && formik.touched.username ? 'border-rose-600' : ''}`}>
+                        <input
+                            type="text"
+                            name='Username'
+                            placeholder='Username'
+                            className={styles.input_text}
+                            {...formik.getFieldProps('username')}
+                        />
+                        <span className='icon flex items-center px-4'>
+                            <HiOutlineUser size={25} />
+                        </span>
+                    </div>
+                    {/* {formik.errors.username && formik.touched.username ? <span className='text-rose-500'>{formik.errors.username}</span> : <></>} */}
+                    <div className={`${styles.input_group} ${formik.errors.email && formik.touched.email ? 'border-rose-600' : ''}`}>
+                        <input
+                            type="email"
+                            name='email'
+                            placeholder='Email'
+                            className={styles.input_text}
+                            {...formik.getFieldProps('email')}
+                        />
+                        <span className='icon flex items-center px-4'>
+                            <HiAtSymbol size={25} />
+                        </span>
+                    </div>
+                    {/* {formik.errors.email && formik.touched.email ? <span className='text-rose-500'>{formik.errors.email}</span> : <></>} */}
+                    <div className={`${styles.input_group} ${formik.errors.password && formik.touched.password ? 'border-rose-600' : ''}`}>
+                        <input
+                            type={`${show.password ? "text" : "password"}`}
+                            name='password'
+                            placeholder='password'
+                            className={styles.input_text}
+                            {...formik.getFieldProps('password')}
+                        />
+                        <span className='icon flex items-center px-4' onClick={() => setShow({ ...show, password: !show.password })}>
+                            <HiFingerPrint size={25} />
+                        </span>
+                    </div>
+                    {/* {formik.errors.password && formik.touched.password ? <span className='text-rose-500'>{formik.errors.password}</span> : <></>} */}
+
+                    <div className={`${styles.input_group} ${formik.errors.cpassword && formik.touched.cpassword ? 'border-rose-600' : ''}`}>
+                        <input
+                            type={`${show.cpassword ? "text" : "password"}`}
+                            name='cpassword'
+                            placeholder='Confirm Password'
+                            className={styles.input_text}
+                            {...formik.getFieldProps('cpassword')}
+                        />
+                        <span className='icon flex items-center px-4' onClick={() => setShow({ ...show, cpassword: !show.cpassword })}>
+                            <HiFingerPrint size={25} />
+                        </span>
+                    </div>
+                    {/* {formik.errors.cpassword && formik.touched.cpassword ? <span className='text-rose-500'>{formik.errors.cpassword}</span> : <></>} */}
+
+                    {/* login buttons */}
+                    <div className="input-button">
+                        <button type='submit' className={styles.button}>
+                            Sign Up
+                        </button>
+                    </div>
+                </form>
+
+                {/* bottom */}
+                <div>
+                    <p className='text-center text-gray-400 '>
+                        Have an account? <a className='text-blue-700'>Sign In<Link href={'/login'}></Link></a>
+                    </p>
+                </div>
+            </section>
+        </Layout>
+    )
 }
