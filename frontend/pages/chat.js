@@ -13,8 +13,10 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Copyright from '../components/Copyright';
+import io from "socket.io-client";
 
 const theme = createTheme();
+const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL);
 
 export default function SignIn() {
     return (

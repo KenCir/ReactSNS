@@ -10,3 +10,8 @@ router.post('/signin', async (req, res) => {
 
 
 });
+
+module.exports = {
+    path: '/auth',
+    router: router,
+};
