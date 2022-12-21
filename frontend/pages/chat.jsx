@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 import Copyright from '../components/Copyright.jsx';
 import io from "socket.io-client";
 
@@ -48,16 +49,33 @@ export default function Chat() {
         <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
-                <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+                <Box
+                    sx={{
+                        marginTop: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Typography variant="h5">
+                        ReactSNS
+                    </Typography>
+                </Box>
+                <Box
+                    sx={{
+                        marginTop: 1,
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'flex-end',
+                    }}
+                >
+                    <List sx={{ width: '100%', maxWidth: '100%', bgcolor: 'background.paper' }}>
                     {chats.map(chat =>
                         <div key={chat.id}>
-                            {/** TODO: メッセージIDをKeyに指定する */}
                             <ListItem alignItems="flex-start">
                                 <ListItemAvatar>
-                                    {/** TODO: 各ユーザー毎のアバターを表示するようにする */}
                                     <Avatar alt="" src={chat.avatar} />
                                 </ListItemAvatar>
-                                {/** TODO: 各ユーザー毎のユーザー名を表示するようにする */}
                                 <ListItemText
                                     primary={chat.username}
                                     secondary={
@@ -77,6 +95,7 @@ export default function Chat() {
                         </div>
                     )}
                 </List>
+                </Box>
                 <Copyright sx={{ mt: 8, mb: 4 }} />
             </Container >
         </ThemeProvider >
