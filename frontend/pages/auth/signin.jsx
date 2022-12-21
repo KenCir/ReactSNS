@@ -5,7 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Copyright from '../../components/Copyright';
+import Copyright from '../../components/Copyright.jsx';
 import styles from '../../styles/Signin.module.css'
 import { useRouter } from 'next/router';
 

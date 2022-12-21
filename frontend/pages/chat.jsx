@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Copyright from '../components/Copyright';
+import Copyright from '../components/Copyright.jsx';
 import io from "socket.io-client";
 
 const theme = createTheme();
