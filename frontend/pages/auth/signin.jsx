@@ -4,6 +4,9 @@ import * as React from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
+import Avatar from '@mui/material/Avatar';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Copyright from '../../components/Copyright.jsx';
 import styles from '../../styles/Signin.module.css'
@@ -54,18 +57,25 @@ export default function SignIn({ csrfToken, providers }) {
                 error = `不明なサインインエラー: ${query["error"]}`;
         }
     }
+
     return (
         <ThemeProvider theme={theme}>
-            <Container component="main" maxWidth="xs">
-                <CssBaseline />
-                <Box
-                    sx={{
-                        marginTop: 8,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                    }}
-                >
+        <Container component="main" maxWidth="xs">
+            <CssBaseline />
+            <Box
+                sx={{
+                    marginTop: 8,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}
+            >
+                <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                    <LockOutlinedIcon />
+                </Avatar>
+                <Typography component="h1" variant="h5">
+                        ログイン
+                </Typography>
                     <div className={styles.cardWrapper}>
                         <div className={styles.cardContent}>
                             <p>{error}</p>
@@ -75,23 +85,23 @@ export default function SignIn({ csrfToken, providers }) {
                                     Email address
                                     <input type="email" id="email" name="email" />
                                 </label>
-                                <button type="submit">Sign in with Email</button>
+                                <button type="submit">メールでサインイン</button>
                             </form>
                             <hr />
                             {providers &&
                                 Object.values(providers).filter(v => v.name !== 'Email').map(provider => (
                                     <div key={provider.name} style={{ marginBottom: 0 }}>
                                         <button onClick={() => signIn(provider.id)} >
-                                            Sign in with{' '} {provider.name}
+                                            {provider.name}でサインイン
                                         </button>
                                     </div>
                                 ))}
                         </div>
                     </div>
-                </Box>
-                <Copyright sx={{ mt: 8, mb: 4 }} />
-            </Container>
-        </ThemeProvider >
+            </Box>
+            <Copyright sx={{ mt: 8, mb: 4 }} />
+        </Container>
+    </ThemeProvider>
     )
 }
 

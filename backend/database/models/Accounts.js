@@ -4,16 +4,26 @@
  */
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define('accounts', {
+        /**
+         * id
+         * 衝突回避のためUUIDで
+         */
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
         },
+        /**
+         * 生メールアドレス
+         * 流石に255文字は超えんやろ(適当)
+         */
         email: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        password: {
+        /**
+         * ユーザー名
+         */
+        username: {
             type: DataTypes.STRING,
             allowNull: false,
         },

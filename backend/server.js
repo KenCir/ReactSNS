@@ -18,6 +18,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(log4js.express);
 
+// CORSを許可する
+app.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+});
+
 // Processイベント読み込み
 readdirSync(path.join(__dirname, '/events/process/')).forEach((file) => {
     const event = require(path.join(__dirname, `/events/process/${file}`));
@@ -34,12 +41,7 @@ readdirSync(path.join(__dirname, '/events/socket/'), { withFileTypes: true }).fi
     log4js.logger.info(`Socket.io ${eventName} event is Loading`);
 });
 
-// Router読み込み
-readdirSync(path.join(__dirname, '/router/')).forEach((file) => {
-    const router = require(path.join(__dirname, `/router/${file}`));
-    app.use(router.path, router.router);
-    log4js.logger.info(`Router ${router.path} is Loading`);
-});
+app.use('/api', require('./router/index'));
 
 // 404
 // eslint-disable-next-line no-unused-vars
