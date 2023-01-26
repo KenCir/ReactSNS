@@ -6,6 +6,7 @@ const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_US
     dialect: 'mysql',
 });
 require('./models/Accounts')(sequelize, DataTypes);
+require('./models/Messages')(sequelize, DataTypes);
 
 const force = process.argv.includes('--force') || process.argv.includes('-f');
 

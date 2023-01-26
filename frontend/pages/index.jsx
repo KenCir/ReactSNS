@@ -1,54 +1,104 @@
-import { useSession, signIn, signOut } from "next-auth/react";
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import CssBaseline from '@mui/material/CssBaseline';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Copyright from '../components/Copyright.jsx';
+import * as React from "react";
+import { useState, useEffect } from "react";
+import AppBar from "@mui/material/AppBar";
+import CssBaseline from "@mui/material/CssBaseline";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import ListItem from "@mui/material/ListItem";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import { useForm, Controller } from "react-hook-form";
+import Copyright from "../components/Copyright";
+import { useSession } from "next-auth/react";
+import TextField from "@mui/material/TextField";
+import InfiniteScroll from "react-infinite-scroll-component";
 import io from "socket.io-client";
+import axios from "axios";
 
 const theme = createTheme();
 
-const chats = [
-  {
-      id: 1,
-      username: "テストユーザー1",
-      message: "テストメッセージ1",
-      avatar: ""
-  },
-  {
-      id: 2,
-      username: "テストユーザー2",
-      message: "テストメッセージ2",
-      avatar: ""
-  },
-  {
-      id: 3,
-      username: "テストユーザー3",
-      message: "テストメッセージ3",
-      avatar: ""
-  },
-];
-
-const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL);
-socket.on('READY', () => {
-  // alert('Ready');
-});
-socket.on('MESSAGE_CREATE', (data) => {
-
-});
-
-export default function Component() {
+export default function Chat() {
   const { data: session, status } = useSession({
     required: true,
   });
+  const { control, handleSubmit, setValue } = useForm({
+    defaultValues: {
+      text: "",
+    },
+  });
+
+  const [chats, setChat] = useState([]);
+  let ignore = false;
+
+  const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL);
+  useEffect(() => {
+    if (!ignore) {
+      socket.on("READY", () => {
+        console.log("Ready");
+      });
+
+      socket.on("CREATE_MESSAGE", (data) => {
+        setChat((oldChat) => [
+          {
+            id: data.id,
+            user_id: data.user_id,
+            content: data.content,
+            username: data.username,
+            avatar: data.avatar,
+          },
+          ...oldChat,
+        ]);
+      });
+
+      (async () => {
+        try {
+          const messages = await axios.post(
+            `${process.env.NEXT_PUBLIC_API_ENDPOINT}message/fetch`,
+            {
+              limit: 100,
+              offset: 0,
+            }
+          );
+          setChat((oldChat) => [...messages.data, ...oldChat]);
+        } catch (e) {
+          console.error(e);
+        }
+      })();
+    }
+
+    ignore = true;
+  }, []);
+
+  const onSubmit = (data) => {
+    socket.emit("CREATE_MESSAGE", {
+      email: session.user.email,
+      content: data.text,
+    });
+    setValue("text", "");
+  };
+
+  const fetchMessages = async () => {
+    const messages = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_ENDPOINT}message/fetch`,
+      {
+        limit: 100,
+        offset: chats.length,
+      }
+    );
+    setChat((oldChat) => [...messages.data, ...oldChat]);
+  };
+
+  const validationRules = {
+    text: {
+      required: "メッセージを入力してください",
+      minLength: { value: 1, message: "1文字以上で入力してください。" },
+      maxLength: { value: 1000, message: "1000文字以下で入力してください。" },
+    },
+  };
 
   if (status === "loading") {
     return "Loading or not authenticated...";
@@ -56,57 +106,127 @@ export default function Component() {
 
   return (
     <ThemeProvider theme={theme}>
-    <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-            sx={{
-                marginTop: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-            }}
-        >
-            <Typography variant="h5">
-                ReactSNS
-            </Typography>
+      <CssBaseline />
+      {/* START HEADER */}
+      <header>
+        <Box sx={{ flexGrow: 1 }}>
+          <AppBar position="static">
+            <Toolbar>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                幻想地帝国 SNS
+              </Typography>
+              <Avatar
+                alt=""
+                src={
+                  session.avatar
+                    ? `${process.env.NEXT_PUBLIC_NEXTCLOUD_URL}index.php/s/${session.avatar}/preview`
+                    : ""
+                }
+                sx={{
+                  marginRight: 1,
+                }}
+              />
+              <Typography variant="h6" component="div">
+                {session.username}
+              </Typography>
+            </Toolbar>
+          </AppBar>
         </Box>
+      </header>
+      {/* END HEADER */}
+      {/* START MAIN */}
+      <main>
+        {/* CHAT BOX */}
         <Box
-            sx={{
-                marginTop: 1,
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'flex-end',
-            }}
+          sx={{
+            marginTop: 2,
+            margin: "auto",
+            width: 350,
+            minHeight: "65vh",
+          }}
         >
-            <List sx={{ width: '100%', maxWidth: '100%', bgcolor: 'background.paper' }}>
-            {chats.map(chat =>
-                <div key={chat.id}>
-                    <ListItem alignItems="flex-start">
-                        <ListItemAvatar>
-                            <Avatar alt="" src={chat.avatar} />
-                        </ListItemAvatar>
-                        <ListItemText
-                            primary={chat.username}
-                            secondary={
-                                <React.Fragment>
-                                    <Typography
-                                        sx={{ display: 'inline' }}
-                                        component="span"
-                                        variant="body2"
-                                        color="text.primary"
-                                    >
-                                        {chat.message}
-                                    </Typography>
-                                </React.Fragment>
-                            }
-                        />
-                    </ListItem>
-                </div>
-            )}
-        </List>
+          <InfiniteScroll
+            dataLength={chats.length}
+            next={fetchMessages}
+            height="65vh"
+            loader={<p>ロード中...</p>}
+            style={{ display: "flex", flexDirection: "column-reverse" }}
+            inverse={true}
+            hasMore={true}
+          >
+            {chats.map((chat) => (
+              <div key={chat.id}>
+                <ListItem alignItems="flex-start">
+                  <ListItemAvatar>
+                    <Avatar
+                      alt=""
+                      src={
+                        chat.avatar
+                          ? `${process.env.NEXT_PUBLIC_NEXTCLOUD_URL}index.php/s/${chat.avatar}/preview`
+                          : ""
+                      }
+                    />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={chat.username}
+                    secondary={
+                      <Typography
+                        sx={{ display: "inline" }}
+                        component="span"
+                        variant="body2"
+                        color="text.primary"
+                      >
+                        {chat.content}
+                      </Typography>
+                    }
+                  />
+                </ListItem>
+              </div>
+            ))}
+          </InfiniteScroll>
         </Box>
+        {/* Message Input BOX */}
+        <Box
+          sx={{
+            marginTop: 2,
+            margin: "auto",
+            width: 350,
+          }}
+        >
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Controller
+              name="text"
+              control={control}
+              rules={validationRules.text}
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  error={fieldState.invalid}
+                  helperText={fieldState.error?.message}
+                  placeholder="メッセージ"
+                  multiline
+                  variant="standard"
+                />
+              )}
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              送信
+            </Button>
+          </form>
+        </Box>
+      </main>
+      {/* END MAIN */}
+      {/* START FOOTER */}
+      <footer>
         <Copyright sx={{ mt: 8, mb: 4 }} />
-    </Container >
-</ThemeProvider >
-  )
+      </footer>
+      {/* END FOOTER */}
+    </ThemeProvider>
+  );
 }

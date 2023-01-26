@@ -6,5 +6,6 @@ router.get('/', (req, res) => {
 });
 
 router.use('/account', require('./account/account'));
+router.use('/message', require('./message/message'));
 
 module.exports = router;

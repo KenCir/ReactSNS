@@ -15,7 +15,7 @@ import Link from "@mui/material/Link";
 import Copyright from "../../components/Copyright.jsx";
 import TextField from "@mui/material/TextField";
 import axios from "axios";
-import { useRouter } from 'next/router';
+import { useRouter } from "next/router";
 
 const theme = createTheme();
 
@@ -35,7 +35,7 @@ export default function NewUser() {
   });
   const onSubmit = (data) => {
     const formData = new FormData();
-    formData.append('email', session.user.email);
+    formData.append("email", session.user.email);
     formData.append("username", data.username);
     formData.append("avatar", file);
 
@@ -48,15 +48,17 @@ export default function NewUser() {
       },
     })
       .then(() => {
-        console.log('success');
-        router.replace('/');
+        router.replace("/");
       })
       .catch((error) => {
         console.error(error);
-        if (error.response.data === 'The specified email account already exists') setError('すでにアカウントを作成済みです');
-        else setError(`不明なエラー: ${error.response.data}`);
+        if (!error.response) setError(`不明なエラーが発生しました`);
+        else if (
+          error.response.data === "The specified email account already exists"
+        )
+          setError("すでにアカウントを作成済みです");
       });
-  }
+  };
 
   const validationRules = {
     name: {
@@ -92,7 +94,9 @@ export default function NewUser() {
             サインアップ
           </Typography>
           <Box noValidate sx={{ mt: 1 }}>
-            <Typography color="error" sx={{ m: 3 }}>{error}</Typography>
+            <Typography color="error" sx={{ m: 3 }}>
+              {error}
+            </Typography>
             <form onSubmit={handleSubmit(onSubmit)}>
               <Controller
                 name="username"
@@ -140,7 +144,7 @@ export default function NewUser() {
                         height: 256,
                         width: 256,
                         ml: 9,
-                        mt: 3
+                        mt: 3,
                       }}
                       src={preview}
                       alt="preview"

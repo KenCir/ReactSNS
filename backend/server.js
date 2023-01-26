@@ -37,7 +37,7 @@ readdirSync(path.join(__dirname, '/events/process/')).forEach((file) => {
 readdirSync(path.join(__dirname, '/events/socket/'), { withFileTypes: true }).filter(dirent => dirent.isFile()).map(dirent => dirent.name).forEach((file) => {
     const event = require(path.join(__dirname, `/events/socket/${file}`));
     const eventName = file.split('.')[0];
-    socket.on(eventName, event.bind(null, log4js.logger));
+    socket.on(eventName, event.bind(null, socket, log4js.logger));
     log4js.logger.info(`Socket.io ${eventName} event is Loading`);
 });
 

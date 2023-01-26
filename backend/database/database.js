@@ -5,7 +5,9 @@ const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_US
     dialect: 'mysql',
 });
 const Accounts = require('./models/Accounts')(sequelize, DataTypes);
+const Messages = require('./models/Messages')(sequelize, DataTypes);
 
 module.exports = {
     Accounts,
+    Messages,
 };

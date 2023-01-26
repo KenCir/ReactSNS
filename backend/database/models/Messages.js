@@ -3,7 +3,7 @@
  * @param {import('sequelize').DataTypes} DataTypes
  */
 module.exports = (sequelize, DataTypes) => {
-    return sequelize.define('accounts', {
+    return sequelize.define('messages', {
         /**
          * id
          * 衝突回避のためUUIDで
@@ -13,26 +13,18 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
         },
         /**
-         * 生メールアドレス
-         * 流石に255文字は超えんやろ(適当)
+         * ユーザーID
          */
-        email: {
-            type: DataTypes.STRING,
+        user_id: {
+            type: DataTypes.UUID,
             allowNull: false,
         },
         /**
-         * ユーザー名
+         * メッセージコンテンツ
          */
-        username: {
-            type: DataTypes.STRING,
+        content: {
+            type: DataTypes.STRING(1000),
             allowNull: false,
-        },
-        /**
-         * アバターの共有トークン
-         */
-        avatar: {
-            type: DataTypes.STRING,
-            allowNull: true,
         },
     }, {
     });
