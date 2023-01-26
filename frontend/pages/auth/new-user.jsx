@@ -40,7 +40,7 @@ export default function NewUser() {
     formData.append("avatar", file);
 
     axios({
-      url: "http://localhost:3001/api/v1/account/create",
+      url: `${NEXT_PUBLIC_API_ENDPOINT}account/create`,
       method: "post",
       data: formData,
       headers: {
