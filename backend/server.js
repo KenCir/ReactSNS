@@ -25,6 +25,14 @@ app.use(function (req, res, next) {
     next();
 });
 
+app.use('/api', require('./router/index'));
+
+// 404
+// eslint-disable-next-line no-unused-vars
+app.use(function (req, res, next) {
+    res.status(404).end();
+});
+
 // Processイベント読み込み
 readdirSync(path.join(__dirname, '/events/process/')).forEach((file) => {
     const event = require(path.join(__dirname, `/events/process/${file}`));
@@ -41,12 +49,4 @@ readdirSync(path.join(__dirname, '/events/socket/'), { withFileTypes: true }).fi
     log4js.logger.info(`Socket.io ${eventName} event is Loading`);
 });
 
-app.use('/api', require('./router/index'));
-
-// 404
-// eslint-disable-next-line no-unused-vars
-app.use(function (req, res, next) {
-    res.status(404).end();
-});
-
-server.listen(process.env.PORT, () => log4js.logger.info(`Server Listening http://localhost:${process.env.PORT}`));
+server.listen(process.env.PORT, process.env.HOST, () => log4js.logger.info(`Server Listening http://localhost:${process.env.PORT}`));
