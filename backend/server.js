@@ -49,4 +49,4 @@ readdirSync(path.join(__dirname, '/events/socket/'), { withFileTypes: true }).fi
     log4js.logger.info(`Socket.io ${eventName} event is Loading`);
 });
 
-server.listen(process.env.PORT, process.env.HOST, () => log4js.logger.info(`Server Listening http://localhost:${process.env.PORT}`));
+server.listen(process.env.PORT, () => log4js.logger.info(`Server Listening http://localhost:${process.env.PORT}`));
