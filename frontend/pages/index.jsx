@@ -1,5 +1,4 @@
-import * as React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
@@ -11,18 +10,18 @@ import ListItem from "@mui/material/ListItem";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import { useForm, Controller } from "react-hook-form";
-import Copyright from "../components/Copyright";
-import { signOut, useSession } from "next-auth/react";
 import TextField from "@mui/material/TextField";
-import InfiniteScroll from "react-infinite-scroll-component";
-import io from "socket.io-client";
-import axios from "axios";
 import Menu from "@mui/material/Menu";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import SendIcon from "@mui/icons-material/Send";
+import { useForm, Controller } from "react-hook-form";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import InfiniteScroll from "react-infinite-scroll-component";
+import io from "socket.io-client";
+import axios from "axios";
+import Copyright from "../components/Copyright";
 
 const theme = createTheme();
 
@@ -36,11 +35,11 @@ export default function Chat() {
     },
   });
   const router = useRouter();
-
   const [chats, setChat] = useState([]);
+  const [anchorEl, setAnchorEl] = useState(null);
   let ignore = false;
-
   const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL);
+
   useEffect(() => {
     if (!ignore) {
       socket.on("READY", () => {
@@ -98,16 +97,6 @@ export default function Chat() {
     setChat((oldChat) => [...messages.data, ...oldChat]);
   };
 
-  const validationRules = {
-    text: {
-      required: "メッセージを入力してください",
-      minLength: { value: 1, message: "1文字以上で入力してください。" },
-      maxLength: { value: 1000, message: "1000文字以下で入力してください。" },
-    },
-  };
-
-  const [anchorEl, setAnchorEl] = useState(null);
-
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -122,6 +111,14 @@ export default function Chat() {
 
   const handleLogout = () => {
     signOut();
+  };
+
+  const validationRules = {
+    text: {
+      required: "メッセージを入力してください",
+      minLength: { value: 1, message: "1文字以上で入力してください。" },
+      maxLength: { value: 1000, message: "1000文字以下で入力してください。" },
+    },
   };
 
   if (status === "loading") {

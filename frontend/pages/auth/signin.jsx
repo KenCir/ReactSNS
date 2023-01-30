@@ -1,16 +1,20 @@
-import { getCsrfToken, getProviders } from "next-auth/react";
-import { useSession, signIn } from "next-auth/react";
-import * as React from "react";
+import React from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import {
+  getCsrfToken,
+  getProviders,
+  useSession,
+  signIn,
+} from "next-auth/react";
+import { useRouter } from "next/router";
 import Copyright from "../../components/Copyright.jsx";
 import styles from "../../styles/Signin.module.css";
-import { useRouter } from "next/router";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 const theme = createTheme();
 

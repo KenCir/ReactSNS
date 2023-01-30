@@ -1,39 +1,36 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useSession } from "next-auth/react";
-import Image from "next/image";
-import { useForm, Controller } from "react-hook-form";
+import React, { useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
-import Copyright from "../../components/Copyright.jsx";
 import TextField from "@mui/material/TextField";
-import axios from "axios";
-import { useRouter } from "next/router";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
+import { useForm, Controller } from "react-hook-form";
+import axios from "axios";
+import Copyright from "../../components/Copyright.jsx";
 
 const theme = createTheme();
 
 export default function NewUser() {
+  const { data: session } = useSession();
   const [preview, setPreview] = useState();
   const [file, setFile] = useState();
   const [error, setError] = useState();
-
-  const { data: session } = useSession();
   const router = useRouter();
-
   const { control, handleSubmit } = useForm({
     defaultValues: {
       username: "",
       avatar: "",
     },
   });
+
   const onSubmit = (data) => {
     const formData = new FormData();
     formData.append("email", session.user.email);
@@ -63,19 +60,8 @@ export default function NewUser() {
       })
       .catch((error) => {
         console.error(error);
-        if (!error.status === 500) setError(`不明なエラーが発生しました`);
-        else if (
-          error.response.data === "The specified email account already exists"
-        )
-          setError("すでにアカウントを作成済みです");
+        setError("不明なエラーが発生しました");
       });
-  };
-
-  const validationRules = {
-    name: {
-      required: "ユーザー名を入力してください",
-      minLength: { value: 2, message: "2文字以上で入力してください。" },
-    },
   };
 
   //ファイルhandleChange関数
@@ -84,6 +70,13 @@ export default function NewUser() {
     const preview = URL.createObjectURL(files[0]);
     setFile(files[0]);
     setPreview(preview);
+  };
+
+  const validationRules = {
+    name: {
+      required: "ユーザー名を入力してください",
+      minLength: { value: 2, message: "2文字以上で入力してください。" },
+    },
   };
 
   // ログイン済みかつアカウント作成済みの場合は飛ばす

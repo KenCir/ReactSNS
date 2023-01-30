@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { useSession } from "next-auth/react";
-import { useForm, Controller } from "react-hook-form";
 import Avatar from "@mui/material/Avatar";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
@@ -8,11 +6,13 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Button from "@mui/material/Button";
-import Copyright from "../components/Copyright.jsx";
 import TextField from "@mui/material/TextField";
-import axios from "axios";
-import { useRouter } from "next/router";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
+import { useForm, Controller } from "react-hook-form";
+import axios from "axios";
+import Copyright from "../components/Copyright.jsx";
 
 const theme = createTheme();
 
@@ -20,18 +20,17 @@ export default function NewUser() {
   const [preview, setPreview] = useState();
   const [file, setFile] = useState();
   const [error, setError] = useState();
-
   const { data: session } = useSession({
     required: true,
   });
   const router = useRouter();
-
   const { control, handleSubmit } = useForm({
     defaultValues: {
       username: "",
       avatar: "",
     },
   });
+
   const onSubmit = (data) => {
     const formData = new FormData();
     formData.append("id", session.id);
@@ -64,13 +63,6 @@ export default function NewUser() {
       });
   };
 
-  const validationRules = {
-    name: {
-      required: "ユーザー名を入力してください",
-      minLength: { value: 2, message: "2文字以上で入力してください。" },
-    },
-  };
-
   //ファイルhandleChange関数
   const handleChangeFile = (newFile) => {
     const { files } = newFile.target;
@@ -79,10 +71,18 @@ export default function NewUser() {
     setPreview(preview);
   };
 
+  const validationRules = {
+    name: {
+      required: "ユーザー名を入力してください",
+      minLength: { value: 2, message: "2文字以上で入力してください。" },
+    },
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
+        {/* START MAIN */}
         <Box
           sx={{
             marginTop: 8,
@@ -167,7 +167,12 @@ export default function NewUser() {
             </form>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
+        {/* END MAIN */}
+        {/* START FOOTER */}
+        <footer>
+          <Copyright sx={{ mt: 8, mb: 4 }} />
+        </footer>
+        {/* END FOOTER */}
       </Container>
     </ThemeProvider>
   );
