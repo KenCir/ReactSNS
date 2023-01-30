@@ -13,11 +13,16 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { useForm, Controller } from "react-hook-form";
 import Copyright from "../components/Copyright";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import TextField from "@mui/material/TextField";
 import InfiniteScroll from "react-infinite-scroll-component";
 import io from "socket.io-client";
 import axios from "axios";
+import Menu from "@mui/material/Menu";
+import IconButton from "@mui/material/IconButton";
+import MenuItem from "@mui/material/MenuItem";
+import SendIcon from "@mui/icons-material/Send";
+import { useRouter } from "next/router";
 
 const theme = createTheme();
 
@@ -30,6 +35,7 @@ export default function Chat() {
       text: "",
     },
   });
+  const router = useRouter();
 
   const [chats, setChat] = useState([]);
   let ignore = false;
@@ -100,6 +106,24 @@ export default function Chat() {
     },
   };
 
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleProfile = () => {
+    router.push("/profile");
+  };
+
+  const handleLogout = () => {
+    signOut();
+  };
+
   if (status === "loading") {
     return "Loading or not authenticated...";
   }
@@ -115,17 +139,44 @@ export default function Chat() {
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                 幻想地帝国 SNS
               </Typography>
-              <Avatar
-                alt=""
-                src={
-                  session.avatar
-                    ? `${process.env.NEXT_PUBLIC_NEXTCLOUD_URL}index.php/s/${session.avatar}/preview`
-                    : ""
-                }
-                sx={{
-                  marginRight: 1,
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                color="inherit"
+              >
+                <Avatar
+                  alt=""
+                  src={
+                    session.avatar
+                      ? `${process.env.NEXT_PUBLIC_NEXTCLOUD_URL}index.php/s/${session.avatar}/preview`
+                      : ""
+                  }
+                  sx={{
+                    marginRight: 1,
+                  }}
+                />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
                 }}
-              />
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={handleProfile}>プロフィールを編集</MenuItem>
+                <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
+              </Menu>
               <Typography variant="h6" component="div">
                 {session.username}
               </Typography>
@@ -153,6 +204,7 @@ export default function Chat() {
             style={{ display: "flex", flexDirection: "column-reverse" }}
             inverse={true}
             hasMore={true}
+            endMessage=""
           >
             {chats.map((chat) => (
               <div key={chat.id}>
@@ -215,6 +267,7 @@ export default function Chat() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              endIcon={<SendIcon />}
             >
               送信
             </Button>

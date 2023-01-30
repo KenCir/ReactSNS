@@ -1,18 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import { useForm, Controller } from "react-hook-form";
 import Avatar from "@mui/material/Avatar";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
-import Link from "@mui/material/Link";
-import Copyright from "../../components/Copyright.jsx";
+import Copyright from "../components/Copyright.jsx";
 import TextField from "@mui/material/TextField";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -25,7 +21,9 @@ export default function NewUser() {
   const [file, setFile] = useState();
   const [error, setError] = useState();
 
-  const { data: session } = useSession();
+  const { data: session } = useSession({
+    required: true,
+  });
   const router = useRouter();
 
   const { control, handleSubmit } = useForm({
@@ -36,12 +34,12 @@ export default function NewUser() {
   });
   const onSubmit = (data) => {
     const formData = new FormData();
-    formData.append("email", session.user.email);
+    formData.append("id", session.id);
     formData.append("username", data.username);
     formData.append("avatar", file);
 
     axios({
-      url: `${process.env.NEXT_PUBLIC_API_ENDPOINT}account/create`,
+      url: `${process.env.NEXT_PUBLIC_API_ENDPOINT}account/update`,
       method: "post",
       data: formData,
       headers: {
@@ -56,18 +54,13 @@ export default function NewUser() {
           }
         );
 
-        session.id = result.data.id;
         session.username = result.data.username;
         session.avatar = result.data.avatar;
-        return router.replace("/");
+        router.replace("/", undefined, { shallow: true });
       })
       .catch((error) => {
         console.error(error);
-        if (!error.status === 500) setError(`不明なエラーが発生しました`);
-        else if (
-          error.response.data === "The specified email account already exists"
-        )
-          setError("すでにアカウントを作成済みです");
+        setError(`不明なエラーが発生しました`);
       });
   };
 
@@ -86,11 +79,6 @@ export default function NewUser() {
     setPreview(preview);
   };
 
-  // ログイン済みかつアカウント作成済みの場合は飛ばす
-  if (session && session.username) {
-    return router.replace("/");
-  }
-
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
@@ -107,7 +95,7 @@ export default function NewUser() {
             <AccountCircleIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            サインアップ
+            アカウント情報を編集
           </Typography>
           <Box noValidate sx={{ mt: 1 }}>
             <Typography color="error" sx={{ m: 3 }}>
@@ -174,15 +162,8 @@ export default function NewUser() {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
               >
-                サインアップ
+                送信
               </Button>
-              <Grid container>
-                <Grid item xs>
-                  <Link href="/" variant="body2">
-                    すでにアカウントをお持ちの場合
-                  </Link>
-                </Grid>
-              </Grid>
             </form>
           </Box>
         </Box>
