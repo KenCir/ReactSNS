@@ -56,7 +56,7 @@ export default function NewUser() {
         session.id = result.data.id;
         session.username = result.data.username;
         session.avatar = result.data.avatar;
-        return router.replace("/");
+        router.replace("/");
       })
       .catch((error) => {
         console.error(error);
@@ -81,7 +81,7 @@ export default function NewUser() {
 
   // ログイン済みかつアカウント作成済みの場合は飛ばす
   if (session && session.username) {
-    return router.replace("/");
+    router.replace("/");
   }
 
   return (

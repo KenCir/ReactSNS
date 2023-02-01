@@ -69,7 +69,7 @@ export default function SignIn({ csrfToken, providers }) {
 
   // ログイン済みの場合は飛ばす
   if (session) {
-    return router.replace("/");
+    router.replace("/");
   }
 
   return (
